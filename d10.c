@@ -68,25 +68,25 @@ int main(int argc, char **argv) {
     printf("cmd %d -> %d\n", cmd->value, cmd->destination);
 
     struct rb_t *robot = &robots[cmd->destination];
-    rb_add_value(robot, cmd->value);
-    if (rb_complete(robot)) {
+    robot->add(cmd->value);
+    if (robot->is_complete()) {
       if (robot->high_destination.is_bot) {
         command_list->add(
-               cmd_create(rb_high(robot), robot->high_destination.index));
+               cmd_create(robot->high(), robot->high_destination.index));
       } else {
-        outputs[robot->high_destination.index] = rb_high(robot);
+        outputs[robot->high_destination.index] = robot->high();
       }
       if (robot->low_destination.is_bot) {
         command_list->add(
-               cmd_create(rb_low(robot), robot->low_destination.index));
+               cmd_create(robot->low(), robot->low_destination.index));
       } else {
-        outputs[robot->low_destination.index] = rb_low(robot);
+        outputs[robot->low_destination.index] = robot->low();
       }
     }
     DESTROY(cmd);
   }
 
-  rb_destroy(robots);
+  free(robots);
   DESTROY(command_list);
   for (int i = 0; i < size; i++) {
     free(lines[i]);

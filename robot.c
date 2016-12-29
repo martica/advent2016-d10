@@ -1,11 +1,8 @@
 #include <stdlib.h>
 #include <sys/param.h>
+#include <Block.h>
 
 #include "robot.h"
-
-struct rb_t *rb_create(size_t count) {
-  return calloc(count, sizeof(struct rb_t));
-}
 
 int rb_complete(struct rb_t *rb) { return rb->a_set && rb->b_set; }
 
@@ -23,4 +20,17 @@ void rb_add_value(struct rb_t *rb, int new) {
   }
 }
 
-void rb_destroy(struct rb_t *rb) { free(rb); }
+struct rb_t *rb_create(size_t count) {
+  struct rb_t *robots = calloc(count, sizeof(struct rb_t));
+
+  for (int i=0; i<count; i++) {
+    struct rb_t *robot = &robots[i];
+    robot->add = Block_copy(^(int value) { rb_add_value(robot, value); });
+    robot->is_complete = Block_copy(^() { return rb_complete(robot); });
+    robot->high = Block_copy(^() { return rb_high(robot); });
+    robot->low = Block_copy(^() { return rb_low(robot); });
+    robot->destroy = Block_copy(^() {});
+  }
+
+  return robots;
+}

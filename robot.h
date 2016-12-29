@@ -4,6 +4,11 @@ struct dest_t {
 };
 
 struct rb_t {
+  void (^destroy)();
+  int (^is_complete)();
+  int (^high)();
+  int (^low)();
+  void (^add)(int value);
   int a_set;
   int b_set;
   int a;
@@ -13,11 +18,3 @@ struct rb_t {
 };
 
 struct rb_t *rb_create(size_t count);
-
-void rb_add_value(struct rb_t *rb, int new);
-
-int rb_complete(struct rb_t *rb);
-int rb_high(struct rb_t *rb);
-int rb_low(struct rb_t *rb);
-
-void rb_destroy(struct rb_t *robot);
