@@ -1,3 +1,5 @@
+#include "object.h"
+
 struct dest_t {
   int is_bot;
   int index;
@@ -14,7 +16,7 @@ struct rb_state {
 };
 
 typedef struct rb_t {
-  void (^destroy)();
+  Object header;
   struct rb_state (^state)();
   void (^set_destinations)(struct dest_t low, struct dest_t high);
   void (^add)(int value);

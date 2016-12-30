@@ -46,9 +46,9 @@ LinkedList *ll_create() {
       .add = Block_copy(^(void *object) {ll_add(linkedList, object);}),
       .pop = Block_copy(^(void *object) {return ll_pop(linkedList);}),
       .is_empty = Block_copy(^int() {return linkedList->head == NULL;}),
-      .destroy = Block_copy(^{
+      .header.destroy = Block_copy(^{
         while (!linkedList->is_empty()) {
-          DESTROY(linkedList->pop());
+          RELEASE(linkedList->pop());
         }
         Block_release(linkedList->add);
         Block_release(linkedList->pop);

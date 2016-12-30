@@ -1,8 +1,6 @@
-#include <Block.h>
 #include <stdlib.h>
 
 #include "command.h"
-#include "object.h"
 
 void cmd_init(Object *object, int value, int destination) {
   Command *command = (Command *)object;

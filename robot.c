@@ -44,7 +44,7 @@ void rb_init(Object *object) {
           ^(struct dest_t low, struct dest_t high) {
             rb_set_destinations(robot, low, high);
           }),
-      .destroy = Block_copy(^() {
+      .header.destroy = Block_copy(^() {
         Block_release(robot->add);
         Block_release(robot->state);
         Block_release(robot->set_destinations);

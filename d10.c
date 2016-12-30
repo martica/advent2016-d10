@@ -4,29 +4,22 @@
 #include <string.h>
 
 #include "command.h"
-#include "object.h"
 #include "linkedlist.h"
 #include "robot.h"
+#include "wrappedstring.h"
 
-char **read_file(char *filename, int *out_size) {
+LinkedList *read_file(char *filename) {
   FILE *input_file_handle = fopen(filename, "r");
 
-  size_t size = 40;
-  char **lines = calloc(sizeof(char *), size);
+  LinkedList *lines = ll_create();
 
   char line[256];
-  int offset = 0;
   while (fgets(line, 255, input_file_handle) != NULL) {
-    lines[offset] = strndup(line, 255);
-    offset++;
-    if (offset == size) {
-      size *= 2;
-      lines = realloc(lines, size * sizeof(char *));
-    }
+    String *string = String_create(line);
+    lines->add(string);
   }
   fclose(input_file_handle);
 
-  if (out_size) *out_size = offset;
   return lines;
 }
 
@@ -43,8 +36,7 @@ struct dest_t get_destination() {
 }
 
 int main(int argc, char **argv) {
-  int size = 0;
-  char **lines = read_file("d10.txt", &size);
+  LinkedList *lines = read_file("d10.txt");
 
   Robot **robots = calloc(256, sizeof(Robot *));
   for (int i=0; i<256; i++) {
@@ -53,8 +45,11 @@ int main(int argc, char **argv) {
   int outputs[21];
   LinkedList *command_list = ll_create();
 
-  for (int i = 0; i < size; i++) {
-    if (strcmp("bot", strtok(lines[i], " ")) == 0) {
+
+  while (!lines->is_empty()) {
+    String *line = lines->pop();
+
+    if (strcmp("bot", strtok(line->get_value(), " ")) == 0) {
       int bot = atoi(strtok(NULL, " "));
       robots[bot]->set_destinations(get_destination(), get_destination());
     } else {
@@ -63,6 +58,7 @@ int main(int argc, char **argv) {
       int bot = atoi(strtok(NULL, " "));
       command_list->add(cmd_create(value, bot));
     }
+    RELEASE(line);
   }
 
   while (!command_list->is_empty()) {
@@ -82,18 +78,15 @@ int main(int argc, char **argv) {
         }
       }
     }
-    DESTROY(cmd);
+    RELEASE(cmd);
   }
 
   for (int i=0; i<256; i++) {
-    DESTROY(robots[i]);
+    RELEASE(robots[i]);
   }
   free(robots);
-  DESTROY(command_list);
-  for (int i = 0; i < size; i++) {
-    free(lines[i]);
-  }
-  free(lines);
+  RELEASE(command_list);
+  RELEASE(lines);
 
   for (int j = 0; j < 21; j++) {
     printf("%d: %d\n", j, outputs[j]);

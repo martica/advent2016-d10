@@ -1,21 +1,26 @@
-#include <Block.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "object.h"
 
 void *constructor(size_t size, init_type init) {
   Object *object = calloc(1, size);
 
+  object->retain_count = 1;
   init(object);
 
   return object;
 }
 
-void destructor(Object *to_destroy) {
-  if (to_destroy->destroy != NULL) {
-    to_destroy->destroy();
-    Block_release(to_destroy->destroy);
+void retain(Object *object) {
+  object->retain_count++;
+}
+
+void release(Object *object) {
+  object->retain_count--;
+  if (object->retain_count == 0) {
+    if (object->destroy != NULL) {
+      object->destroy();
+      Block_release(object->destroy);
+    }
+    free(object);
   }
-  free(to_destroy);
 }

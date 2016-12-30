@@ -1,5 +1,7 @@
+#include "object.h"
+
 typedef struct cmd_t {
-  void (^destroy)();
+  Object header;
   int value;
   int destination;
 } Command;
