@@ -1,12 +1,18 @@
-#include <stdlib.h>
 #include <Block.h>
+#include <stdlib.h>
 
 #include "command.h"
+#include "object.h"
 
-struct cmd_t *cmd_create(int value, int destination) {
-  struct cmd_t *cmd = calloc(sizeof(struct cmd_t), 1);
-  cmd->value = value;
-  cmd->destination = destination;
-  cmd->destroy = Block_copy(^ {});
-  return cmd;
+void cmd_init(Object *object, int value, int destination) {
+  Command *command = (Command *)object;
+
+  *command = (Command) {
+      .value = value,
+      .destination = destination
+  };
+}
+
+Command *cmd_create(int value, int destination) {
+  return CREATE(Command, (^(Object *o) { cmd_init(o, value, destination);}));
 }

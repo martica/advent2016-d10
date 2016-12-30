@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include "command.h"
+#include "object.h"
 #include "linkedlist.h"
 #include "robot.h"
-#include "destructor.h"
 
 char **read_file(char *filename, int *out_size) {
   FILE *input_file_handle = fopen(filename, "r");
@@ -31,30 +31,32 @@ char **read_file(char *filename, int *out_size) {
 }
 
 void skip_words(int count) {
-  for(int i=0; i<count; i++) {
+  for (int i = 0; i < count; i++) {
     strtok(NULL, " ");
   }
 }
 
-void get_destination(struct dest_t *destination) {
+struct dest_t get_destination() {
   skip_words(3);
-  destination->is_bot = strcmp("bot", strtok(NULL, " ")) == 0;
-  destination->index = atoi(strtok(NULL, " "));
+  return (struct dest_t){.is_bot = strcmp("bot", strtok(NULL, " ")) == 0,
+                         .index = atoi(strtok(NULL, " "))};
 }
 
 int main(int argc, char **argv) {
   int size = 0;
   char **lines = read_file("d10.txt", &size);
 
-  struct rb_t *robots = rb_create(256);
+  Robot **robots = calloc(256, sizeof(Robot *));
+  for (int i=0; i<256; i++) {
+    robots[i] = rb_create();
+  }
   int outputs[21];
-  struct ll_t *command_list = ll_create();
+  LinkedList *command_list = ll_create();
 
   for (int i = 0; i < size; i++) {
     if (strcmp("bot", strtok(lines[i], " ")) == 0) {
       int bot = atoi(strtok(NULL, " "));
-      get_destination(&robots[bot].low_destination);
-      get_destination(&robots[bot].high_destination);
+      robots[bot]->set_destinations(get_destination(), get_destination());
     } else {
       int value = atoi(strtok(NULL, " "));
       skip_words(3);
@@ -67,25 +69,25 @@ int main(int argc, char **argv) {
     struct cmd_t *cmd = command_list->pop();
     printf("cmd %d -> %d\n", cmd->value, cmd->destination);
 
-    struct rb_t *robot = &robots[cmd->destination];
+    Robot *robot = robots[cmd->destination];
     robot->add(cmd->value);
-    if (robot->is_complete()) {
-      if (robot->high_destination.is_bot) {
-        command_list->add(
-               cmd_create(robot->high(), robot->high_destination.index));
-      } else {
-        outputs[robot->high_destination.index] = robot->high();
-      }
-      if (robot->low_destination.is_bot) {
-        command_list->add(
-               cmd_create(robot->low(), robot->low_destination.index));
-      } else {
-        outputs[robot->low_destination.index] = robot->low();
+    struct rb_state robot_state = robot->state();
+    if (robot_state.is_complete) {
+      for (int i = 0; i < 2; i++) {
+        struct rb_output output = robot_state.outputs[i];
+        if (output.destination.is_bot) {
+          command_list->add(cmd_create(output.value, output.destination.index));
+        } else {
+          outputs[output.destination.index] = output.value;
+        }
       }
     }
     DESTROY(cmd);
   }
 
+  for (int i=0; i<256; i++) {
+    DESTROY(robots[i]);
+  }
   free(robots);
   DESTROY(command_list);
   for (int i = 0; i < size; i++) {

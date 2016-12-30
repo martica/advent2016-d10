@@ -3,13 +3,13 @@ struct ll_entry {
   void *data;
 };
 
-struct ll_t {
+typedef struct ll_t {
   void (^destroy)();
   void (^add)(void *object);
-  void *(^pop)();
+  void * (^pop)();
   int (^is_empty)();
   struct ll_entry *head;
   struct ll_entry *tail;
-};
+} LinkedList;
 
-struct ll_t *ll_create();
+LinkedList *ll_create();

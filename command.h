@@ -1,9 +1,7 @@
-struct cmd_t {
+typedef struct cmd_t {
   void (^destroy)();
   int value;
   int destination;
-};
+} Command;
 
-struct cmd_t *cmd_create(int value, int destination);
-
-void cmd_destroy(struct cmd_t *cmd);
+Command *cmd_create(int value, int destination);

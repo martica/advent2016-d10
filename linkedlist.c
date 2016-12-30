@@ -1,12 +1,12 @@
-#include <assert.h>
-#include <stdlib.h>
 #include <Block.h>
+#include <assert.h>
 #include <printf.h>
+#include <stdlib.h>
 
+#include "object.h"
 #include "linkedlist.h"
-#include "destructor.h"
 
-void ll_add(struct ll_t *list, void *object) {
+void ll_add(LinkedList *list, void *object) {
   struct ll_entry *node;
   node = calloc(sizeof(struct ll_entry), 1);
   node->data = object;
@@ -21,7 +21,7 @@ void ll_add(struct ll_t *list, void *object) {
   }
 }
 
-void *ll_pop(struct ll_t *list) {
+void *ll_pop(LinkedList *list) {
   if (list->head == NULL) {
     return NULL;
   }
@@ -39,23 +39,22 @@ void *ll_pop(struct ll_t *list) {
   return data;
 }
 
-int ll_is_empty(struct ll_t *list) { return list->head == NULL; }
+LinkedList *ll_create() {
+  LinkedList *linkedList = calloc(sizeof(LinkedList), 1);
 
-struct ll_t *ll_create() {
-  struct ll_t *list = calloc(sizeof(struct ll_t), 1);
+  *linkedList = (LinkedList) {
+      .add = Block_copy(^(void *object) {ll_add(linkedList, object);}),
+      .pop = Block_copy(^(void *object) {return ll_pop(linkedList);}),
+      .is_empty = Block_copy(^int() {return linkedList->head == NULL;}),
+      .destroy = Block_copy(^{
+        while (!linkedList->is_empty()) {
+          DESTROY(linkedList->pop());
+        }
+        Block_release(linkedList->add);
+        Block_release(linkedList->pop);
+        Block_release(linkedList->is_empty);
+      })
+  };
 
-  list->add = Block_copy(^(void *object) {ll_add(list, object);});
-  list->pop = Block_copy(^(void *object) {return ll_pop(list);});
-  list->is_empty = Block_copy(^() {return ll_is_empty(list);});
-  list->destroy = Block_copy(^ {
-    while(!list->is_empty()) {
-      DESTROY(list->pop());
-    }
-    Block_release(list->add);
-    Block_release(list->pop);
-    Block_release(list->is_empty);
-  });
-
-  return list;
+  return linkedList;
 }
-

@@ -3,11 +3,20 @@ struct dest_t {
   int index;
 };
 
-struct rb_t {
+struct rb_output {
+  struct dest_t destination;
+  int value;
+};
+
+struct rb_state {
+  int is_complete;
+  struct rb_output outputs[2];
+};
+
+typedef struct rb_t {
   void (^destroy)();
-  int (^is_complete)();
-  int (^high)();
-  int (^low)();
+  struct rb_state (^state)();
+  void (^set_destinations)(struct dest_t low, struct dest_t high);
   void (^add)(int value);
   int a_set;
   int b_set;
@@ -15,6 +24,6 @@ struct rb_t {
   int b;
   struct dest_t high_destination;
   struct dest_t low_destination;
-};
+} Robot;
 
-struct rb_t *rb_create(size_t count);
+Robot *rb_create();
