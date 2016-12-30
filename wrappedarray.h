@@ -11,10 +11,10 @@ typedef struct Array {
   Object header;
   Object **items;
   unsigned int size;
-  Object * (^get_item)(unsigned int index);
-  void (^set_item)(unsigned int index, Object *item);
+  void * (^get_item)(unsigned int index);
+  void (^set_item)(unsigned int index, void *item);
 } Array;
 
-Array *Array_create(unsigned int size);
+Array *Array_create();
 
 #endif //ADVENT10_WRAPPEDARRAY_H
