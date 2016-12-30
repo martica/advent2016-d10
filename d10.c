@@ -6,6 +6,7 @@
 #include "command.h"
 #include "linkedlist.h"
 #include "robot.h"
+#include "wrappedarray.h"
 #include "wrappedstring.h"
 
 LinkedList *read_file(char *filename) {
@@ -38,9 +39,11 @@ struct dest_t get_destination() {
 int main(int argc, char **argv) {
   LinkedList *lines = read_file("d10.txt");
 
-  Robot **robots = calloc(256, sizeof(Robot *));
+  Array *robots = Array_create(256);
   for (int i=0; i<256; i++) {
-    robots[i] = rb_create();
+    Robot *robot = rb_create();
+    robots->set_item(i, (Object *) robot);
+    RELEASE(robot);
   }
   int outputs[21];
   LinkedList *command_list = ll_create();
@@ -50,8 +53,8 @@ int main(int argc, char **argv) {
     String *line = lines->pop();
 
     if (strcmp("bot", strtok(line->get_value(), " ")) == 0) {
-      int bot = atoi(strtok(NULL, " "));
-      robots[bot]->set_destinations(get_destination(), get_destination());
+      unsigned int bot = (unsigned int)atoi(strtok(NULL, " "));
+      ((Robot *)robots->get_item(bot))->set_destinations(get_destination(), get_destination());
     } else {
       int value = atoi(strtok(NULL, " "));
       skip_words(3);
@@ -60,12 +63,13 @@ int main(int argc, char **argv) {
     }
     RELEASE(line);
   }
+  RELEASE(lines);
 
   while (!command_list->is_empty()) {
     struct cmd_t *cmd = command_list->pop();
     printf("cmd %d -> %d\n", cmd->value, cmd->destination);
 
-    Robot *robot = robots[cmd->destination];
+    Robot *robot = (Robot *)robots->get_item(cmd->destination);
     robot->add(cmd->value);
     struct rb_state robot_state = robot->state();
     if (robot_state.is_complete) {
@@ -81,12 +85,8 @@ int main(int argc, char **argv) {
     RELEASE(cmd);
   }
 
-  for (int i=0; i<256; i++) {
-    RELEASE(robots[i]);
-  }
-  free(robots);
+  RELEASE(robots);
   RELEASE(command_list);
-  RELEASE(lines);
 
   for (int j = 0; j < 21; j++) {
     printf("%d: %d\n", j, outputs[j]);

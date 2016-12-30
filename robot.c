@@ -3,7 +3,6 @@
 #include <sys/param.h>
 
 #include "robot.h"
-#include "object.h"
 
 void rb_add_value(Robot *rb, int new) {
   if (!rb->a_set) {

@@ -1,3 +1,10 @@
+//
+// Created by Tyler Bindon on 2016-12-30.
+//
+
+#ifndef ADVENT10_LINKEDLIST_H
+#define ADVENT10_LINKEDLIST_H
+
 #include "object.h"
 
 struct ll_entry {
@@ -15,3 +22,5 @@ typedef struct ll_t {
 } LinkedList;
 
 LinkedList *ll_create();
+
+#endif //ADVENT10_LINKEDLIST_H

@@ -39,8 +39,8 @@ void *ll_pop(LinkedList *list) {
   return data;
 }
 
-LinkedList *ll_create() {
-  LinkedList *linkedList = calloc(sizeof(LinkedList), 1);
+void LinkedList_init(Object *object) {
+  LinkedList *linkedList = (LinkedList *) object;
 
   *linkedList = (LinkedList) {
       .add = Block_copy(^(void *object) {ll_add(linkedList, object);}),
@@ -55,6 +55,8 @@ LinkedList *ll_create() {
         Block_release(linkedList->is_empty);
       })
   };
+}
 
-  return linkedList;
+LinkedList *ll_create() {
+  return CREATE(LinkedList, (^(Object *o) { LinkedList_init(o);}));
 }

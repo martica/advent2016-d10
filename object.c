@@ -1,11 +1,13 @@
 
+#include <printf.h>
 #include "object.h"
 
-void *constructor(size_t size, init_type init) {
+void *constructor(size_t size, char *name, init_type init) {
   Object *object = calloc(1, size);
 
-  object->retain_count = 1;
   init(object);
+  object->retain_count = 1;
+  object->name = name;
 
   return object;
 }
@@ -16,6 +18,7 @@ void retain(Object *object) {
 
 void release(Object *object) {
   object->retain_count--;
+  printf("releasing %s: %d\n", object->name, object->retain_count);
   if (object->retain_count == 0) {
     if (object->destroy != NULL) {
       object->destroy();
