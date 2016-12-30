@@ -39,8 +39,8 @@ void *ll_pop(LinkedList *list) {
   return data;
 }
 
-void LinkedList_init(Object *object) {
-  LinkedList *linkedList = (LinkedList *) object;
+void LinkedList_init(Object *alloc) {
+  LinkedList *linkedList = (LinkedList *) alloc;
 
   *linkedList = (LinkedList) {
       .add = Block_copy(^(void *object) {ll_add(linkedList, object);}),

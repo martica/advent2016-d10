@@ -3,7 +3,7 @@
 typedef struct cmd_t {
   Object header;
   int value;
-  int destination;
+  unsigned int destination;
 } Command;
 
-Command *cmd_create(int value, int destination);
+Command *cmd_create(int value, unsigned int destination);

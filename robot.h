@@ -2,7 +2,7 @@
 
 struct dest_t {
   int is_bot;
-  int index;
+  unsigned int index;
 };
 
 struct rb_output {

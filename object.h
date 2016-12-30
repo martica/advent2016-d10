@@ -10,12 +10,12 @@
 typedef struct object {
   void (^destroy)();
   int retain_count;
-  char *name;
+  char *type_name;
 } Object;
 
 typedef void (^init_type)(Object *o);
 
-void *constructor(size_t size, char *name, init_type init);
+void *constructor(size_t size, char *type_name, init_type init);
 void retain(Object *object);
 void release(Object *object);
 

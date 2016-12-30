@@ -33,19 +33,21 @@ void skip_words(int count) {
 struct dest_t get_destination() {
   skip_words(3);
   return (struct dest_t){.is_bot = strcmp("bot", strtok(NULL, " ")) == 0,
-                         .index = atoi(strtok(NULL, " "))};
+                         .index = (unsigned int) atoi(strtok(NULL, " "))};
 }
 
 int main(int argc, char **argv) {
+  int outputs[21];
+
   LinkedList *lines = read_file("d10.txt");
 
   Array *robots = Array_create(256);
-  for (int i=0; i<256; i++) {
+  for (unsigned int i=0; i<256; i++) {
     Robot *robot = rb_create();
     robots->set_item(i, (Object *) robot);
     RELEASE(robot);
   }
-  int outputs[21];
+
   LinkedList *command_list = ll_create();
 
 
@@ -53,12 +55,12 @@ int main(int argc, char **argv) {
     String *line = lines->pop();
 
     if (strcmp("bot", strtok(line->get_value(), " ")) == 0) {
-      unsigned int bot = (unsigned int)atoi(strtok(NULL, " "));
+      unsigned int bot = (unsigned int) atoi(strtok(NULL, " "));
       ((Robot *)robots->get_item(bot))->set_destinations(get_destination(), get_destination());
     } else {
       int value = atoi(strtok(NULL, " "));
       skip_words(3);
-      int bot = atoi(strtok(NULL, " "));
+      unsigned int bot = (unsigned int) atoi(strtok(NULL, " "));
       command_list->add(cmd_create(value, bot));
     }
     RELEASE(line);
