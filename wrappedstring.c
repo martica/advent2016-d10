@@ -8,11 +8,12 @@
 void String_init(Object *object, char *value) {
   String *string = (String *)object;
 
-  string->value = strdup(value);
-  string->get_value = METHOD(string, ^{return string->value;});
   DESTRUCTOR(string, ^{free(string->value);});
 }
 
-String *String_create(char *string) {
-  return CREATE(String, (^(Object *o) { String_init(o, string);}));
+String *String_create(char *value) {
+  String *string = CREATE(String, String_init);
+  string->value = strdup(value);
+  string->get_value = METHOD(string, ^{return string->value;});
+  return string;
 }

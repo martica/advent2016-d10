@@ -8,7 +8,9 @@ void *constructor(size_t size, char *type_name, init_type init) {
   object->methods = calloc(100, sizeof(void *));
   object->method_count = 0;
 
-  init(object);
+  if (init != NULL) {
+    init(object);
+  }
 
   object->methods = realloc(object->methods, sizeof(void *) * object->method_count);
   object->retain_count = 1;

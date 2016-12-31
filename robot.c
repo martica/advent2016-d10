@@ -46,6 +46,6 @@ void rb_init(Object *object) {
 }
 
 Robot *rb_create() {
-  return CREATE(Robot, (^(Object *o) { rb_init(o); }));
+  return CREATE(Robot, rb_init);
 }
 

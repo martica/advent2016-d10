@@ -32,8 +32,6 @@ void array_set_item(Array *array, unsigned int index, Object *object) {
 void Array_init(Object *object) {
   Array *array = (Array *)object;
 
-  array->size = 10;
-  array->items = calloc(10, sizeof(Object *));
   array->get_item = METHOD(
       array,
       ^(unsigned int index) {
@@ -54,6 +52,9 @@ void Array_init(Object *object) {
     });
 }
 Array *Array_create() {
-  return CREATE(Array, (^(Object *o) { Array_init(o);}));
+  Array *array = CREATE(Array, Array_init);
+  array->size = 10;
+  array->items = calloc(10, sizeof(Object *));
+  return array;
 }
 

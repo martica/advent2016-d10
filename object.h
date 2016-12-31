@@ -15,7 +15,7 @@ typedef struct object {
   unsigned int method_count;
 } Object;
 
-typedef void (^init_type)(Object *o);
+typedef void (*init_type)(Object *o);
 
 void *constructor(size_t size, char *type_name, init_type init);
 void retain(Object *object);

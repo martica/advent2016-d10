@@ -49,5 +49,5 @@ void LinkedList_init(Object *object) {
 }
 
 LinkedList *ll_create() {
-  return CREATE(LinkedList, (^(Object *o) { LinkedList_init(o);}));
+  return CREATE(LinkedList, LinkedList_init);
 }
