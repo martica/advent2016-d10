@@ -8,13 +8,9 @@
 void String_init(Object *object, char *value) {
   String *string = (String *)object;
 
-  *string = (String) {
-      .value = strdup(value),
-      .get_value = Block_copy(^{return string->value;}),
-      .header.destroy = Block_copy(^{
-        free(string->value);
-      })
-  };
+  string->value = strdup(value);
+  string->get_value = METHOD(string, ^{return string->value;});
+  DESTRUCTOR(string, ^{free(string->value);});
 }
 
 String *String_create(char *string) {

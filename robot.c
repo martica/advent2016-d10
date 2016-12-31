@@ -36,18 +36,13 @@ void rb_set_destinations(Robot *rb, struct dest_t low, struct dest_t high) {
 void rb_init(Object *object) {
   Robot *robot = (Robot *)object;
 
-  *robot = (Robot) {
-      .add = Block_copy(^(int value) { rb_add_value(robot, value); }),
-      .state = Block_copy(^() { return rb_get_state(robot); }),
-      .set_destinations = Block_copy(
-          ^(struct dest_t low, struct dest_t high) {
-            rb_set_destinations(robot, low, high);
-          }),
-      .header.destroy = Block_copy(^() {
-        Block_release(robot->add);
-        Block_release(robot->state);
-        Block_release(robot->set_destinations);
-      })};
+  robot->add = METHOD(robot, ^(int value) { rb_add_value(robot, value); });
+  robot->state = METHOD(robot, ^ {return rb_get_state(robot);});
+  robot->set_destinations = METHOD(
+      robot,
+      ^(struct dest_t low, struct dest_t high) {
+        rb_set_destinations(robot, low, high);
+      });
 }
 
 Robot *rb_create() {

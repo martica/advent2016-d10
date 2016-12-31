@@ -5,10 +5,8 @@
 void cmd_init(Object *object, int value, unsigned int destination) {
   Command *command = (Command *)object;
 
-  *command = (Command) {
-      .value = value,
-      .destination = destination
-  };
+  command->value = value;
+  command->destination = destination;
 }
 
 Command *cmd_create(int value, unsigned int destination) {

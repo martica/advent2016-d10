@@ -39,22 +39,13 @@ void *ll_pop(LinkedList *list) {
   return data;
 }
 
-void LinkedList_init(Object *alloc) {
-  LinkedList *linkedList = (LinkedList *) alloc;
+void LinkedList_init(Object *object) {
+  LinkedList *list = (LinkedList *) object;
 
-  *linkedList = (LinkedList) {
-      .add = Block_copy(^(void *object) {ll_add(linkedList, object);}),
-      .pop = Block_copy(^(void *object) {return ll_pop(linkedList);}),
-      .is_empty = Block_copy(^int() {return linkedList->head == NULL;}),
-      .header.destroy = Block_copy(^{
-        while (!linkedList->is_empty()) {
-          RELEASE(linkedList->pop());
-        }
-        Block_release(linkedList->add);
-        Block_release(linkedList->pop);
-        Block_release(linkedList->is_empty);
-      })
-  };
+  list->add = METHOD(list, ^(void *obj) {ll_add(list, obj);});
+  list->pop = METHOD(list, ^ {return ll_pop(list);});
+  list->is_empty = METHOD(list, ^int {return list->head == NULL;});
+  DESTRUCTOR(list, ^{ while (!list->is_empty()) { RELEASE(list->pop()); } });
 }
 
 LinkedList *ll_create() {
